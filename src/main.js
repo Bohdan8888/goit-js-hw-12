@@ -2,8 +2,7 @@ import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import axios from 'axios'
-
+import axios from 'axios';
 
 const form = document.querySelector(".form");
 const gallery = document.querySelector(".gallery");
@@ -32,12 +31,10 @@ const hideButton = () => {
   loadBtn.style.display = 'none';
 };
 
-
 let page = 1;
-let per_page = 40;
+const per_page = 15; // Змінено на 15 зображень на сторінку
 let query = " ";
 let totalHits;
-
 
 form.addEventListener("submit", async (event) => {
   page = 1;
@@ -51,7 +48,7 @@ form.addEventListener("submit", async (event) => {
     form.reset();
     hideLoader();
     showButton();
-    if (photos.hits.length < 40) {
+    if (photos.hits.length < per_page) {
       hideButton();
     }
     if (photos.hits.length === 0) {
@@ -64,8 +61,8 @@ form.addEventListener("submit", async (event) => {
     }
   } catch (error) {
     iziToast.error({
-    title: 'Error',
-});
+      title: 'Error',
+    });
   }
 });
 
@@ -95,8 +92,8 @@ loadBtn.addEventListener("click", async () => {
     }
   } catch (error) {
     iziToast.error({
-    title: 'Error',
-});
+      title: 'Error',
+    });
     hideLoader();
   }
 });
@@ -104,6 +101,7 @@ loadBtn.addEventListener("click", async () => {
 async function searchImages() {
   try {
     const apiKey = '41764579-b97d65b31c0abd4efd9d4830e';
+    
     const params = new URLSearchParams({
       key: apiKey,
       q: query,
@@ -111,8 +109,8 @@ async function searchImages() {
       orientation: "horizontal",
       safesearch: true,
       page: page,
-      per_page: per_page
-    })
+      per_page: per_page 
+    });
     const response = await axios.get(`https://pixabay.com/api/?${params}`);
     totalHits = response.data.totalHits;
 
@@ -125,28 +123,28 @@ async function searchImages() {
 
 function renderImages(data) {
   const markup = data.hits
-          .map(data => {
-            return `
-            <li class="gallery-item"><a href="${data.largeImageURL}">
+    .map(data => {
+      return `
+        <li class="gallery-item"><a href="${data.largeImageURL}">
           <img class="gallery-image" src="${data.webformatURL}" alt="${data.tags}"></a>
           <p><b>Likes: </b>${data.likes}</p>
           <p><b>Views: </b>${data.views}</p>
           <p><b>Comments: </b>${data.comments}</p>
           <p><b>Downloads: </b>${data.downloads}</p>
-          </li>`;
-          }).join('');
-        
-        gallery.insertAdjacentHTML("beforeend", markup);
-          const lightbox = new SimpleLightbox('.gallery a', {
-          captions: true,
-          captionType: 'attr',
-          captionsData: 'alt',
-          captionPosition: 'bottom',
-          fadeSpeed: 150,
-          captionSelector: "img",
-          captionDelay: 250,
-        });
+        </li>`;
+    }).join('');
+  
+  gallery.insertAdjacentHTML("beforeend", markup);
+  const lightbox = new SimpleLightbox('.gallery a', {
+    captions: true,
+    captionType: 'attr',
+    captionsData: 'alt',
+    captionPosition: 'bottom',
+    fadeSpeed: 150,
+    captionSelector: "img",
+    captionDelay: 250,
+  });
 
-        lightbox.on('show.simplelightbox').refresh();
+  lightbox.on('show.simplelightbox').refresh();
   hideLoader();
 };
